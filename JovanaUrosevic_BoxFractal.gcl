@@ -1,0 +1,77 @@
+background 0 0 0
+dim 140 140
+animation_frames 120 30
+
+procedure Box { x y size st maxst phase }
+{
+    if_then_else { st == 0 }
+    {
+        expression ex1 { x + size }
+        number x1 ex1
+        expression ey1 { y + size }
+        number y1 ey1
+
+        point A x  y
+        point C x1 y1
+
+        expression r_expr { 50 + 205 * phase }
+        expression b_expr { 255 - 205 * phase }
+        number r r_expr
+        number b b_expr
+
+        color r 0 b
+
+        fillrectangle A C
+    }
+    {
+        % sledeći nivo
+        expression est { st - 1 }
+        number nst est
+
+        expression es { size / 3.0 }
+        number ns es
+
+        % centar
+        expression ex1 { x + ns }
+        expression ey1 { y + ns }
+        number nx1 ex1
+        number ny1 ey1
+        call Box { nx1 ny1 ns nst maxst phase }
+
+        % gornji levi
+        call Box { x y ns nst maxst phase }
+
+        % gornji desni
+        expression ex2 { x + 2*ns }
+        number nx2 ex2
+        call Box { nx2 y ns nst maxst phase }
+
+        % donji levi
+        expression ey2 { y + 2*ns }
+        number ny2 ey2
+        call Box { x ny2 ns nst maxst phase }
+
+        % donji desni
+        expression ex3 { x + 2*ns }
+        expression ey3 { y + 2*ns }
+        number nx3 ex3
+        number ny3 ey3
+        call Box { nx3 ny3 ns nst maxst phase }
+    }
+}
+
+point A 30 30
+
+point B 80 30  120 30
+
+distance size A B
+
+number minsize 50
+number maxsize 90
+
+expression phase_expr { (size - minsize) / (maxsize - minsize) }
+number phase phase_expr
+
+number maxst 5
+
+call Box { 30 30 size maxst maxst phase }
