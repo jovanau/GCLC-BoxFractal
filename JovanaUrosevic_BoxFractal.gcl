@@ -2,8 +2,12 @@ background 0 0 0
 dim 140 140
 animation_frames 120 30
 
-procedure Box { x y size st maxst phase }
+procedure Box { x y size st maxst phase limit }
 {
+
+    expression dep_expr { maxst - st }
+    number depth dep_expr 
+    
     if_then_else { st == 0 }
     {
         expression ex1 { x + size }
@@ -24,6 +28,26 @@ procedure Box { x y size st maxst phase }
         fillrectangle A C
     }
     {
+    	if_then_else { depth >= limit }
+        {
+            expression ex1 { x + size }
+            number x1 ex1
+            expression ey1 { y + size }
+            number y1 ey1
+
+            point A x y
+            point C x1 y1
+
+            expression r_expr { 50 + 205 * phase }
+            expression b_expr { 255 - 205 * phase }
+            number r r_expr
+            number b b_expr
+
+            color r 0 b
+            fillrectangle A C
+        }
+        {
+    
         % sledeći nivo
         expression est { st - 1 }
         number nst est
@@ -36,32 +60,32 @@ procedure Box { x y size st maxst phase }
         expression ey1 { y + ns }
         number nx1 ex1
         number ny1 ey1
-        call Box { nx1 ny1 ns nst maxst phase }
+        call Box { nx1 ny1 ns nst maxst phase limit }
 
         % gornji levi
-        call Box { x y ns nst maxst phase }
+        call Box { x y ns nst maxst phase limit }
 
         % gornji desni
         expression ex2 { x + 2*ns }
         number nx2 ex2
-        call Box { nx2 y ns nst maxst phase }
+        call Box { nx2 y ns nst maxst phase limit }
 
         % donji levi
         expression ey2 { y + 2*ns }
         number ny2 ey2
-        call Box { x ny2 ns nst maxst phase }
+        call Box { x ny2 ns nst maxst phase limit }
 
         % donji desni
         expression ex3 { x + 2*ns }
         expression ey3 { y + 2*ns }
         number nx3 ex3
         number ny3 ey3
-        call Box { nx3 ny3 ns nst maxst phase }
+        call Box { nx3 ny3 ns nst maxst phase limit }
+        }
     }
 }
 
 point A 30 30
-
 point B 80 30  120 30
 
 distance size A B
@@ -72,6 +96,9 @@ number maxsize 90
 expression phase_expr { (size - minsize) / (maxsize - minsize) }
 number phase phase_expr
 
+expression limit_expr { ite(phase > 0.66, 5, ite(phase > 0.33, 4, 3)) }
+number limit limit_expr
+
 number maxst 5
 
-call Box { 30 30 size maxst maxst phase }
+call Box { 30 30 size maxst maxst phase limit }
